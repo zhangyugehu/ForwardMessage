@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SMS</string>
+    <string name="str_no_app_key">AppKey未设置</string>
 </resources>

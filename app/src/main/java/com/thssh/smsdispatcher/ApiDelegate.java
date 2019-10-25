@@ -1,5 +1,6 @@
 package com.thssh.smsdispatcher;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class ApiDelegate implements Api {
     private OkHttpClient client;
 //    https://sc.ftqq.com/SCU25792T613524a3a2b2636bcaf0f2b2cafffe755aea6d088d6b8.send
 
-    private String API_SEND = "SCU25792T613524a3a2b2636bcaf0f2b2cafffe755aea6d088d6b8.send";
+    private String API_SEND = ".send";
 
     public ApiDelegate() {
         client = new OkHttpClient.Builder()
@@ -29,14 +30,27 @@ public class ApiDelegate implements Api {
                 .build();
     }
 
+    private String getAppKey() throws NoAppKeyException {
+        String appKey = AppManager.getInstance().getAppKey();
+        if (TextUtils.isEmpty(appKey)) throw new NoAppKeyException();
+        return appKey;
+    }
+
     @Override
     public void sendMessage(String title, String content) {
+        String appKey = null;
+        try {
+            appKey = getAppKey();
+        } catch (NoAppKeyException e) {
+            Log.d(TAG, "onException: " + e.getMessage());
+            return;
+        }
         FormBody body = new FormBody.Builder()
                 .add("text", title)
                 .add("desp", content)
                 .build();
         Request request = new Request.Builder()
-                .url(BASE_URL + API_SEND)
+                .url(BASE_URL + appKey + API_SEND)
                 .post(body)
                 .build();
         client.newCall(request).enqueue(new Callback() {

@@ -7,9 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
@@ -21,12 +19,23 @@ import java.util.TreeSet;
 public class NotificationWatcherService extends NotificationListenerService {
     private static final String TAG = "NotificationWatcher";
 
-    private Set<String> mExcludePackageList = new TreeSet<>();
+    private Settings settings;
+    private AppManager appManager;
+
     private boolean isRunning;
 
     public NotificationWatcherService() {
+        appManager = AppManager.getInstance();
         Log.d(TAG, "NotificationWatcherService: ");
-        mExcludePackageList.add("com.thssh.smsdispatcher");
+//        mExcludePackageList.add("com.thssh.smsdispatcher");
+        getSettings().addInclude("com.android.mms");
+    }
+
+    public Settings getSettings() {
+        if (settings == null) {
+            settings = new DefaultSettings();
+        }
+        return settings;
     }
 
     @Override
@@ -71,16 +80,16 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
-        logSBN(sbn, "onNotificationPosted");
+        dispatch(sbn, "onNotificationPosted");
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         super.onNotificationRemoved(sbn);
-        logSBN(sbn, "onNotificationRemoved");
+        dispatch(sbn, "onNotificationRemoved");
     }
 
-    void logSBN(StatusBarNotification sbn, String tag) {
+    void dispatch(StatusBarNotification sbn, String tag) {
 
         Bundle extras = sbn.getNotification().extras;
         String title = null;
@@ -96,12 +105,13 @@ public class NotificationWatcherService extends NotificationListenerService {
             subText = extras.get(Notification.EXTRA_SUB_TEXT).toString();
         }
         ApplicationInfo appInfo = (ApplicationInfo) extras.get("android.rebuild.applicationInfo");
+        Set<String> includeSet = getSettings().getIncludeSet();
+        Set<String> excludeSet = getSettings().getExcludeSet();
         if (appInfo != null) {
             String packageName = appInfo.packageName;
-            if (mExcludePackageList.contains(packageName)) return;
-            if (TextUtils.equals(packageName, "com.android.mms")) {
-
-            }
+            if (includeSet != null && includeSet.size() < 1
+                    && excludeSet != null && excludeSet.contains(packageName)) return;
+            if (includeSet != null && !includeSet.contains(packageName)) return;
         }
 
         String contentText = buildContent(tag, title, content);
