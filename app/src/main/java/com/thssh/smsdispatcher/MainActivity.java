@@ -4,7 +4,6 @@ package com.thssh.smsdispatcher;
 import android.Manifest;
 import android.content.ClipData;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
+import com.thssh.smsdispatcher.activity.PackagesActivity;
 
 public class MainActivity extends PermissionsActivity {
 
@@ -94,7 +95,7 @@ public class MainActivity extends PermissionsActivity {
         }
         appKeyTextView.setText("当前AppKey: \r\n" + appKey);
         Log.d(TAG, "startListenService: startService");
-        startService(new Intent(this, NotificationWatcherService.class));
+        NotificationWatcherService.start(this);
         Log.d(TAG, "startListenService: service started");
     }
 
@@ -120,19 +121,13 @@ public class MainActivity extends PermissionsActivity {
         new AlertDialog.Builder(this)
                 .setTitle("输入AppKey")
                 .setView(et)
-                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callback.onCancel();
-                        dialog.dismiss();
-                    }
+                .setNegativeButton("取消", (dialog, which) -> {
+                    callback.onCancel();
+                    dialog.dismiss();
                 })
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callback.onResult(et.getText().toString());
-                        dialog.dismiss();
-                    }
+                .setPositiveButton("确定", (dialog, which) -> {
+                    callback.onResult(et.getText().toString());
+                    dialog.dismiss();
                 })
                 .create().show();
     }

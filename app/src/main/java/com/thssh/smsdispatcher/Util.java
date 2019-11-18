@@ -4,12 +4,19 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import com.thssh.smsdispatcher.model.AppInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class Util {
@@ -62,5 +69,45 @@ public class Util {
             e.printStackTrace();
             return false;
         }
+    }
+    public static List<AppInfo> getPackages(Context context) {
+        // 获取已经安装的所有应用, PackageInfo　系统类，包含应用信息
+        List<AppInfo> infoList = new ArrayList<>();
+        List<AppInfo> sysList = new ArrayList<>();
+        PackageManager packageManager = context.getPackageManager();
+        List<PackageInfo> packages = packageManager.getInstalledPackages(0);
+        for (int i = 0; i < packages.size(); i++) {
+            PackageInfo packageInfo = packages.get(i);
+
+            // AppInfo 自定义类，包含应用信息
+//            AppInfo appInfo = new AppInfo();
+//            appInfo.setAppName(
+//                    packageInfo.applicationInfo.loadLabel(packageManager).toString());//获取应用名称
+//            appInfo.setPackageName(packageInfo.packageName); //获取应用包名，可用于卸载和启动应用
+//            appInfo.setVersionName(packageInfo.versionName);//获取应用版本名
+//            appInfo.setVersionCode(packageInfo.versionCode);//获取应用版本号
+//            appInfo.setAppIcon(packageInfo.applicationInfo.loadIcon(packageManager));//获取应用图标
+//            appInfo.setSysApp((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM) != 0);
+//            System.out.println(appInfo.toString());
+//            infoList.add(appInfo);
+
+            AppInfo appInfo = new AppInfo();
+            appInfo.setAppName(
+                    packageInfo.applicationInfo.loadLabel(packageManager).toString());//获取应用名称
+            appInfo.setPackageName(packageInfo.packageName); //获取应用包名，可用于卸载和启动应用
+            appInfo.setVersionName(packageInfo.versionName);//获取应用版本名
+            appInfo.setVersionCode(packageInfo.versionCode);//获取应用版本号
+            appInfo.setAppIcon(packageInfo.applicationInfo.loadIcon(packageManager));//获取应用图标
+            if ((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM) == 0) { //非系统应用
+                // AppInfo 自定义类，包含应用信息
+                appInfo.setSysApp(false);
+                infoList.add(appInfo);
+            } else { // 系统应用
+                appInfo.setSysApp(true);
+                sysList.add(appInfo);
+            }
+        }
+        infoList.addAll(sysList);
+        return infoList;
     }
 }

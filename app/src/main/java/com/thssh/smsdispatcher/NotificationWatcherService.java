@@ -13,8 +13,12 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 public class NotificationWatcherService extends NotificationListenerService {
     private static final String TAG = "NotificationWatcher";
@@ -24,11 +28,18 @@ public class NotificationWatcherService extends NotificationListenerService {
 
     private boolean isRunning;
 
+    public static boolean sIsRunning;
+
     public NotificationWatcherService() {
         appManager = AppManager.getInstance();
         Log.d(TAG, "NotificationWatcherService: ");
 //        mExcludePackageList.add("com.thssh.smsdispatcher");
         getSettings().addInclude("com.android.mms");
+        getSettings().addInclude("com.android.server.telecom");
+    }
+
+    public static void start(Context context) {
+        context.startService(new Intent(context, NotificationWatcherService.class));
     }
 
     public Settings getSettings() {
@@ -41,7 +52,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!isRunning) {
-            isRunning = true;
+            sIsRunning = isRunning = true;
             Log.d(TAG, "onStartCommand: ");
             Intent nf = new Intent(this, MainActivity.class);
             Notification notification = new Notification.Builder(getApplicationContext())
@@ -63,6 +74,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     public void onDestroy() {
         stopForeground(true);
         super.onDestroy();
+        sIsRunning = isRunning = false;
     }
 
     @Override
@@ -75,6 +87,9 @@ public class NotificationWatcherService extends NotificationListenerService {
     public void onListenerConnected() {
         super.onListenerConnected();
         Log.d(TAG, "onListenerConnected: ");
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(ServiceCheckWorker.class, 16, TimeUnit.MINUTES).build();
+        WorkManager.getInstance().enqueue(workRequest);
     }
 
     @Override
