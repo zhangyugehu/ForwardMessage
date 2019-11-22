@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name">SMS</string>
+    <string name="app_name">通知转发</string>
     <string name="str_no_app_key">AppKey未设置</string>
+    <string name="string_packages_label">选择需要转发的应用</string>
+    <string name="string_pkg_loading">加载中...</string>
 </resources>

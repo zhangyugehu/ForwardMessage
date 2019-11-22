@@ -1,34 +1,28 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.net;
 
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.thssh.smsdispatcher.exception.NoAppKeyException;
+import com.thssh.smsdispatcher.model.AppManager;
+
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class ApiDelegate implements Api {
-    private static final String TAG = "ApiDelegate";
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+/**
+ * By Server酱
+ * http://sc.ftqq.com
+ */
+public class ServerChanApi extends ApiWithClient {
+    private static final String TAG = "ServerChanApi";
 
     private String BASE_URL = "https://sc.ftqq.com/";
-    private OkHttpClient client;
-//    https://sc.ftqq.com/SCU25792T613524a3a2b2636bcaf0f2b2cafffe755aea6d088d6b8.send
-
     private String API_SEND = ".send";
-
-    public ApiDelegate() {
-        client = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .build();
-    }
 
     private String getAppKey() throws NoAppKeyException {
         String appKey = AppManager.getInstance().getAppKey();
@@ -53,7 +47,7 @@ public class ApiDelegate implements Api {
                 .url(BASE_URL + appKey + API_SEND)
                 .post(body)
                 .build();
-        client.newCall(request).enqueue(new Callback() {
+        getClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onFailure: " + e.getMessage());
@@ -66,3 +60,4 @@ public class ApiDelegate implements Api {
         });
     }
 }
+

@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.tools;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,6 +6,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import com.thssh.smsdispatcher.App;
+import com.thssh.smsdispatcher.model.service.NotificationWatcherService;
 
 public class ServiceCheckWorker extends Worker {
 

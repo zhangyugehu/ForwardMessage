@@ -1,17 +1,17 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.net;
 
 public class RemoteService implements Api {
 
-    private ApiDelegate delegate;
+    private Api api;
 
     private RemoteService() {
     }
 
-    public ApiDelegate getDelegate() {
-        if (null == delegate) {
-            delegate = new ApiDelegate();
+    public Api getApi() {
+        if (null == api) {
+            api = new ServerChanApi();
         }
-        return delegate;
+        return api;
     }
 
     private static RemoteService instance;
@@ -28,6 +28,6 @@ public class RemoteService implements Api {
 
     @Override
     public void sendMessage(String title, String content) {
-        getDelegate().sendMessage(title, content);
+        getApi().sendMessage(title, content);
     }
 }

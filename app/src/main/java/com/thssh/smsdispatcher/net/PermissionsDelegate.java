@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.net;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat;
 
 public class PermissionsDelegate {
 
-    interface Callback {
+    public interface Callback {
         void onPermissionGranted(int requestCode, String permission);
         void onPermissionDenied(int requestCode, String permission);
     }

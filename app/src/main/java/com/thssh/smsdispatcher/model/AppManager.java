@@ -1,7 +1,9 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.model;
 
 import android.content.ClipboardManager;
 import android.content.Context;
+
+import com.thssh.smsdispatcher.tools.StorageHelper;
 
 public class AppManager {
     private static AppManager ins;

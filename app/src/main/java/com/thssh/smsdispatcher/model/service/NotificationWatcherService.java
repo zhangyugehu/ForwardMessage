@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.model.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -16,8 +16,16 @@ import android.util.Log;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.thssh.smsdispatcher.R;
+import com.thssh.smsdispatcher.settings.CustomSettings;
+import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
+import com.thssh.smsdispatcher.activity.MainActivity;
+import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.net.RemoteService;
+import com.thssh.smsdispatcher.settings.DefaultSettings;
+import com.thssh.smsdispatcher.settings.Settings;
+
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 public class NotificationWatcherService extends NotificationListenerService {
@@ -34,8 +42,8 @@ public class NotificationWatcherService extends NotificationListenerService {
         appManager = AppManager.getInstance();
         Log.d(TAG, "NotificationWatcherService: ");
 //        mExcludePackageList.add("com.thssh.smsdispatcher");
-        getSettings().addInclude("com.android.mms");
-        getSettings().addInclude("com.android.server.telecom");
+//        getSettings().addInclude("com.android.mms");
+//        getSettings().addInclude("com.android.server.telecom");
     }
 
     public static void start(Context context) {
@@ -44,7 +52,8 @@ public class NotificationWatcherService extends NotificationListenerService {
 
     public Settings getSettings() {
         if (settings == null) {
-            settings = new DefaultSettings();
+//            settings = new DefaultSettings();
+            settings = new CustomSettings();
         }
         return settings;
     }
@@ -133,7 +142,7 @@ public class NotificationWatcherService extends NotificationListenerService {
         Log.d(TAG, contentText);
 
         if (TextUtils.equals(tag, "onNotificationPosted")) {
-            String preview = "预览：" + title.substring(0, 4) + " | " + content;
+            String preview = "预览" + " | " + content;
             RemoteService.get().sendMessage(preview, contentText);
         }
     }

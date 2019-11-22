@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".activity.PackagesActivity">
 
+    <TextView
+        android:id="@+id/pkg_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/string_pkg_loading"
+        app:layout_constraintBottom_toBottomOf="@+id/list_packages"
+        app:layout_constraintEnd_toEndOf="@+id/list_packages"
+        app:layout_constraintStart_toStartOf="@+id/list_packages"
+        app:layout_constraintTop_toTopOf="@+id/list_packages" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_packages"
         android:layout_width="0dp"

@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.exception;
 
 public class NoAppKeyException extends Exception {
     public NoAppKeyException() {

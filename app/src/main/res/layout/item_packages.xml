@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="45dp"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/item_packages_sys_app_flag"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@mipmap/ic_launcher" />
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/item_packages_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="8dp"
+            android:src="@mipmap/ic_launcher" />
         <TextView
             android:id="@+id/item_app_name"
             android:textColor="#000"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:layout_gravity="bottom"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/item_package_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
         <CheckBox
             android:id="@+id/item_packages_chk"
             android:layout_alignParentRight="true"
             android:clickable="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </RelativeLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/item_package_name"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/item_packages_sys_app_flag"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_lock_idle_lock" />
+    </LinearLayout>
 
 </LinearLayout>

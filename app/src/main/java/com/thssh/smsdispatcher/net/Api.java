@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.net;
 
 public interface Api {
 

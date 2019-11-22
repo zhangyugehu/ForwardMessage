@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.tools;
 
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -70,7 +70,13 @@ public class Util {
             return false;
         }
     }
+
+    private static List<AppInfo> sPkgCache;
     public static List<AppInfo> getPackages(Context context) {
+        return getPackages(context, false);
+    }
+    public static List<AppInfo> getPackages(Context context, boolean force) {
+        if (!force && sPkgCache != null) return sPkgCache;
         // 获取已经安装的所有应用, PackageInfo　系统类，包含应用信息
         List<AppInfo> infoList = new ArrayList<>();
         List<AppInfo> sysList = new ArrayList<>();
@@ -78,18 +84,6 @@ public class Util {
         List<PackageInfo> packages = packageManager.getInstalledPackages(0);
         for (int i = 0; i < packages.size(); i++) {
             PackageInfo packageInfo = packages.get(i);
-
-            // AppInfo 自定义类，包含应用信息
-//            AppInfo appInfo = new AppInfo();
-//            appInfo.setAppName(
-//                    packageInfo.applicationInfo.loadLabel(packageManager).toString());//获取应用名称
-//            appInfo.setPackageName(packageInfo.packageName); //获取应用包名，可用于卸载和启动应用
-//            appInfo.setVersionName(packageInfo.versionName);//获取应用版本名
-//            appInfo.setVersionCode(packageInfo.versionCode);//获取应用版本号
-//            appInfo.setAppIcon(packageInfo.applicationInfo.loadIcon(packageManager));//获取应用图标
-//            appInfo.setSysApp((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM) != 0);
-//            System.out.println(appInfo.toString());
-//            infoList.add(appInfo);
 
             AppInfo appInfo = new AppInfo();
             appInfo.setAppName(
@@ -108,6 +102,7 @@ public class Util {
             }
         }
         infoList.addAll(sysList);
+        sPkgCache = infoList;
         return infoList;
     }
 }

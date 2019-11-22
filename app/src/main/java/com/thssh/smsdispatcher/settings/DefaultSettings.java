@@ -1,5 +1,8 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.settings;
 
+import com.thssh.smsdispatcher.model.AppManager;
+
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -19,6 +22,12 @@ public class DefaultSettings implements Settings {
     }
 
     @Override
+    public void addAllInclude(Collection<String> list, boolean clear) {
+        if (clear) mInclude.clear();
+        mInclude.addAll(list);
+    }
+
+    @Override
     public void removeInclude(String packageName) {
         mInclude.remove(packageName);
     }
@@ -31,6 +40,12 @@ public class DefaultSettings implements Settings {
     @Override
     public void addExclude(String packageName) {
         mExclude.add(packageName);
+    }
+
+    @Override
+    public void addAllExclude(Collection<String> list, boolean clear) {
+        if (clear) mExclude.clear();
+        mExclude.addAll(list);
     }
 
     @Override

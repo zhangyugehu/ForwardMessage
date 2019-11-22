@@ -1,7 +1,9 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.tools;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import com.thssh.smsdispatcher.App;
 
 public class StorageHelper {
     private static final StorageHelper ourInstance = new StorageHelper();

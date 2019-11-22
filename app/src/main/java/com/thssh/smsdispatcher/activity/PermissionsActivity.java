@@ -1,10 +1,12 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.activity;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.thssh.smsdispatcher.net.PermissionsDelegate;
 
 public abstract class PermissionsActivity extends AppCompatActivity implements PermissionsDelegate.Callback {
 

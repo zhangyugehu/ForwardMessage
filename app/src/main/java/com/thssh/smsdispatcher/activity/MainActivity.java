@@ -1,9 +1,8 @@
-package com.thssh.smsdispatcher;
+package com.thssh.smsdispatcher.activity;
 
 
 import android.Manifest;
 import android.content.ClipData;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,7 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.thssh.smsdispatcher.activity.PackagesActivity;
+import com.thssh.smsdispatcher.R;
+import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.model.service.NotificationWatcherService;
+import com.thssh.smsdispatcher.tools.Storage;
+import com.thssh.smsdispatcher.tools.Util;
+
+import java.util.Set;
 
 public class MainActivity extends PermissionsActivity {
 
@@ -26,8 +31,9 @@ public class MainActivity extends PermissionsActivity {
     }
 
     private static final int ID_APP_KEY = 0;
+    private static final int ID_PACKAGE_ACTIVITY = 1;
 
-    private TextView appKeyTextView;
+    private TextView mLogTxt;
 
     @Override
     int contentViewId() {
@@ -52,7 +58,7 @@ public class MainActivity extends PermissionsActivity {
     protected void onCreate(Bundle savedInstanceState, boolean isFinished) {
         super.onCreate(savedInstanceState, isFinished);
         Log.d(TAG, "onCreate: ");
-        appKeyTextView = findViewById(R.id.tv_app_key);
+        mLogTxt = findViewById(R.id.tv_log);
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
             Util.gotoNotificationAccessSetting(this);
@@ -64,11 +70,13 @@ public class MainActivity extends PermissionsActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        print(AppManager.getInstance().getAppKey(), Storage.getIns().getAllInclude(), null);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, ID_APP_KEY, 0, "AppKey");
+        menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -77,6 +85,9 @@ public class MainActivity extends PermissionsActivity {
         switch (item.getItemId()) {
             case ID_APP_KEY:
                 setAppKey();
+                break;
+            case ID_PACKAGE_ACTIVITY:
+                PackagesActivity.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -93,10 +104,32 @@ public class MainActivity extends PermissionsActivity {
             setAppKey();
             return;
         }
-        appKeyTextView.setText("当前AppKey: \r\n" + appKey);
+//        mLogTxt.setText("当前AppKey: \r\n" + appKey);
         Log.d(TAG, "startListenService: startService");
         NotificationWatcherService.start(this);
         Log.d(TAG, "startListenService: service started");
+    }
+
+    private void print(String appKey, Set<String> includes, Set<String> excludes) {
+        if (TextUtils.isEmpty(appKey)) {
+            mLogTxt.setText("未设置AppKey\n");
+        } else {
+            mLogTxt.setText(String.format("AppKey: %s\n", appKey));
+        }
+        if (includes != null && includes.size() > 0) {
+            mLogTxt.append("\n需要转发的App\n");
+            for (String pkg: includes) {
+                mLogTxt.append(pkg);
+                mLogTxt.append("\n");
+            }
+        }
+        if (excludes != null && excludes.size() > 0) {
+            mLogTxt.append("\n不转发的App\n");
+            for (String pkg: excludes) {
+                mLogTxt.append(pkg);
+                mLogTxt.append("\n");
+            }
+        }
     }
 
     private void setAppKey() {
