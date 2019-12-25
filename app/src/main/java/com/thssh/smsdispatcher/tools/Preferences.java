@@ -2,6 +2,7 @@ package com.thssh.smsdispatcher.tools;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -12,6 +13,9 @@ public class Preferences {
 
     public Preferences(Context context, String name) {
         mPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
+        mPreferences.registerOnSharedPreferenceChangeListener((sp, key) -> {
+            Log.d("Preferences", "Preferences: " + key);
+        });
     }
 
     public void save(String key, String value) {
@@ -52,7 +56,7 @@ public class Preferences {
 
     public void save(String key, Set<String> value) {
         if (mPreferences == null) return;
-        mPreferences.edit().putStringSet(key, value).apply();
+        mPreferences.edit().clear().putStringSet(key, value).apply();
     }
     public Set<String> restore(String key, Set<String> defVal) {
         if (mPreferences == null) return defVal;

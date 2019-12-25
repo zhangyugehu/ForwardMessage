@@ -26,6 +26,7 @@ import com.thssh.smsdispatcher.model.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class PackagesActivity extends AppCompatActivity {
@@ -74,6 +75,17 @@ public class PackagesActivity extends AppCompatActivity {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             List<AppInfo> packages = Util.getPackages(App.getAppContext());
+            Set<String> includes = Storage.getIns().getAllInclude();
+            List<AppInfo> checkedList = new ArrayList<>();
+            for (AppInfo info : packages) {
+                if (includes.contains(info.getPackageName())) {
+                    checkedList.add(info);
+                }
+            }
+            for (AppInfo info : checkedList) {
+                packages.remove(info);
+                packages.add(0, info);
+            }
             if (isDestroy) return;
             mHandler.post(() -> {
                 if (isDestroy) return;
