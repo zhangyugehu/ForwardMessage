@@ -100,12 +100,14 @@ public class MainActivity extends PermissionsActivity {
         startListenService(null);
     }
     private void startListenService(String appKey) {
-        if (TextUtils.isEmpty(appKey)) {
-            appKey = AppManager.getInstance().getAppKey();
-        }
-        if (TextUtils.isEmpty(appKey)) {
-            setAppKey();
-            return;
+        if (useServerChan) {
+            if (TextUtils.isEmpty(appKey)) {
+                appKey = AppManager.getInstance().getAppKey();
+            }
+            if (TextUtils.isEmpty(appKey)) {
+                setAppKey();
+                return;
+            }
         }
 //        mLogTxt.setText("当前AppKey: \r\n" + appKey);
         Log.d(TAG, "startListenService: startService");

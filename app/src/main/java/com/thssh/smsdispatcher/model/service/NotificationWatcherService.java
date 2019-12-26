@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.thssh.smsdispatcher.BuildConfig;
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.activity.MainActivity;
 import com.thssh.smsdispatcher.model.AppManager;
@@ -23,6 +24,7 @@ import com.thssh.smsdispatcher.net.RemoteService;
 import com.thssh.smsdispatcher.settings.Settings;
 import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
 
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +55,7 @@ public class NotificationWatcherService extends NotificationListenerService {
             Intent nf = new Intent(this, MainActivity.class);
             Notification notification = new Notification.Builder(getApplicationContext())
                     .setContentIntent(PendingIntent.getActivity(this, 0, nf, 0))
-                    .setContentTitle("通知转发")
+                    .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG?"(DEBUG)":""))
                     .setContentText("监控通知栏并转发")
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setWhen(System.currentTimeMillis())
