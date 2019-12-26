@@ -3,14 +3,19 @@ package com.thssh.smsdispatcher.model;
 import android.content.ClipboardManager;
 import android.content.Context;
 
+import com.thssh.smsdispatcher.settings.CustomSettings;
+import com.thssh.smsdispatcher.settings.Settings;
 import com.thssh.smsdispatcher.tools.StorageHelper;
 
 public class AppManager {
     private static AppManager ins;
 
     private ClipboardManager cm;
+    private Settings settings;
 
-    private AppManager() {}
+    private AppManager() {
+        settings = new CustomSettings();
+    }
     public static AppManager getInstance() {
         if (null == ins) {
             synchronized (AppManager.class) {
@@ -39,5 +44,9 @@ public class AppManager {
             cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         }
         return cm;
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 }

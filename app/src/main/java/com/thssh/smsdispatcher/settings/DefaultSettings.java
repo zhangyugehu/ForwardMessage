@@ -62,4 +62,9 @@ public class DefaultSettings implements Settings {
     public void setAppKey(String key) {
         AppManager.getInstance().saveAppkey(key);
     }
+
+    @Override
+    public boolean useServerChan() {
+        return true;
+    }
 }

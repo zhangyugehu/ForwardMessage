@@ -9,7 +9,8 @@ public class RemoteService implements Api {
 
     public Api getApi() {
         if (null == api) {
-            api = new ServerChanApi();
+//            api = new ServerChanApi();
+            api = new PrivateServerApi();
         }
         return api;
     }

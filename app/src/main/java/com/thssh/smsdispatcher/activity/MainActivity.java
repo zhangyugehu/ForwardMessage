@@ -54,10 +54,13 @@ public class MainActivity extends PermissionsActivity {
 
     private static final String TAG = "MainActivity";
 
+    private boolean useServerChan;
+
     @Override
     protected void onCreate(Bundle savedInstanceState, boolean isFinished) {
         super.onCreate(savedInstanceState, isFinished);
         Log.d(TAG, "onCreate: ");
+        useServerChan = AppManager.getInstance().getSettings().useServerChan();
         mLogTxt = findViewById(R.id.tv_log);
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
@@ -111,10 +114,14 @@ public class MainActivity extends PermissionsActivity {
     }
 
     private void print(String appKey, Set<String> includes, Set<String> excludes) {
-        if (TextUtils.isEmpty(appKey)) {
-            mLogTxt.setText("未设置AppKey\n");
+        if (useServerChan) {
+            if (TextUtils.isEmpty(appKey)) {
+                mLogTxt.setText("未设置AppKey\n");
+            } else {
+                mLogTxt.setText(String.format("AppKey: %s\n", appKey));
+            }
         } else {
-            mLogTxt.setText(String.format("AppKey: %s\n", appKey));
+            mLogTxt.setText("使用私有服务器\n");
         }
         if (includes != null && includes.size() > 0) {
             mLogTxt.append("\n需要转发的App\n");
@@ -133,6 +140,10 @@ public class MainActivity extends PermissionsActivity {
     }
 
     private void setAppKey() {
+        if (!useServerChan) {
+            Toast.makeText(this, "无需设置AppKey", Toast.LENGTH_SHORT).show();
+            return;
+        }
         waitUserInput(new InputCallback() {
             @Override
             void onResult(String text) {

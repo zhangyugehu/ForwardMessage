@@ -15,6 +15,6 @@ public interface Settings {
     void removeExclude(String packageName);
     Set<String> getExcludeSet();
 
-
     void setAppKey(String key);
+    boolean useServerChan();
 }

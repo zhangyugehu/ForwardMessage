@@ -51,4 +51,9 @@ public class CustomSettings implements Settings {
     public void setAppKey(String key) {
 
     }
+
+    @Override
+    public boolean useServerChan() {
+        return false;
+    }
 }

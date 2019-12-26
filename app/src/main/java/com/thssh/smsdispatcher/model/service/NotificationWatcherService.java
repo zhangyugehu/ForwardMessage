@@ -17,13 +17,11 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.thssh.smsdispatcher.R;
-import com.thssh.smsdispatcher.settings.CustomSettings;
-import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
 import com.thssh.smsdispatcher.activity.MainActivity;
 import com.thssh.smsdispatcher.model.AppManager;
 import com.thssh.smsdispatcher.net.RemoteService;
-import com.thssh.smsdispatcher.settings.DefaultSettings;
 import com.thssh.smsdispatcher.settings.Settings;
+import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -31,19 +29,12 @@ import java.util.concurrent.TimeUnit;
 public class NotificationWatcherService extends NotificationListenerService {
     private static final String TAG = "NotificationWatcher";
 
-    private Settings settings;
-    private AppManager appManager;
-
     private boolean isRunning;
 
     public static boolean sIsRunning;
 
     public NotificationWatcherService() {
-        appManager = AppManager.getInstance();
         Log.d(TAG, "NotificationWatcherService: ");
-//        mExcludePackageList.add("com.thssh.smsdispatcher");
-//        getSettings().addInclude("com.android.mms");
-//        getSettings().addInclude("com.android.server.telecom");
     }
 
     public static void start(Context context) {
@@ -51,11 +42,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     }
 
     public Settings getSettings() {
-        if (settings == null) {
-//            settings = new DefaultSettings();
-            settings = new CustomSettings();
-        }
-        return settings;
+        return AppManager.getInstance().getSettings();
     }
 
     @Override
