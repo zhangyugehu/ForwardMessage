@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.model.Mode;
 import com.thssh.smsdispatcher.model.service.NotificationWatcherService;
 import com.thssh.smsdispatcher.tools.Storage;
 import com.thssh.smsdispatcher.tools.Util;
@@ -32,6 +33,7 @@ public class MainActivity extends PermissionsActivity {
 
     private static final int ID_APP_KEY = 0;
     private static final int ID_PACKAGE_ACTIVITY = 1;
+    private static final int ID_CHANGE_MODE = 2;
 
     private TextView mLogTxt;
 
@@ -54,13 +56,17 @@ public class MainActivity extends PermissionsActivity {
 
     private static final String TAG = "MainActivity";
 
-    private boolean useServerChan;
+    private boolean useServerChan() {
+        return AppManager.getInstance().getSettings().getMode() == Mode.SERVER_CHAN || useServerMulti();
+    }
+    private boolean useServerMulti() {
+        return AppManager.getInstance().getSettings().getMode() == Mode.SERVER_MULTI;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState, boolean isFinished) {
         super.onCreate(savedInstanceState, isFinished);
         Log.d(TAG, "onCreate: ");
-        useServerChan = AppManager.getInstance().getSettings().useServerChan();
         mLogTxt = findViewById(R.id.tv_log);
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
@@ -73,15 +79,33 @@ public class MainActivity extends PermissionsActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        initLogger();
+    }
+
+    private void initLogger() {
         print(AppManager.getInstance().getAppKey(), Storage.getIns().getAllInclude(), null);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, ID_APP_KEY, 0, "AppKey");
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        if (useServerChan()) {
+            menu.add(0, ID_APP_KEY, 0, "AppKey");
+        }
         menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
-        return super.onCreateOptionsMenu(menu);
+        menu.add(0, ID_CHANGE_MODE, 0, "切换模式(当前:" + getModeStr() + ")");
+        Log.i(TAG, "onPrepareOptionsMenu: ");
+        return super.onPrepareOptionsMenu(menu);
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        menu.add(0, ID_APP_KEY, 0, "AppKey");
+//        menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
+//        menu.add(0, ID_CHANGE_MODE, 0, "切换模式(当前:" + getModeStr() + ")");
+//        Log.i(TAG, "onCreateOptionsMenu: ");
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -92,15 +116,39 @@ public class MainActivity extends PermissionsActivity {
             case ID_PACKAGE_ACTIVITY:
                 PackagesActivity.start(this);
                 break;
+            case ID_CHANGE_MODE:
+                changeMode();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getModeStr() {
+        int mode = AppManager.getInstance().getSettings().getMode();
+        switch (mode) {
+            case Mode.SERVER_CHAN:
+                return "serverChan";
+            case Mode.SERVER_SELF:
+                return "privateServer";
+            case Mode.SERVER_MULTI:
+                return "Multi";
+            default: return "";
+        }
+    }
+
+    private void changeMode() {
+        int mode = AppManager.getInstance().getSettings().getMode();
+        mode ++;
+        if (mode > Mode.SERVER_MULTI) mode = Mode.SERVER_CHAN;
+        AppManager.getInstance().getSettings().setMode(mode);
+        initLogger();
     }
 
     private void startListenService() {
         startListenService(null);
     }
     private void startListenService(String appKey) {
-        if (useServerChan) {
+        if (useServerChan()) {
             if (TextUtils.isEmpty(appKey)) {
                 appKey = AppManager.getInstance().getAppKey();
             }
@@ -116,12 +164,14 @@ public class MainActivity extends PermissionsActivity {
     }
 
     private void print(String appKey, Set<String> includes, Set<String> excludes) {
-        if (useServerChan) {
+        if (useServerChan()) {
             if (TextUtils.isEmpty(appKey)) {
                 mLogTxt.setText("未设置AppKey\n");
             } else {
                 mLogTxt.setText(String.format("AppKey: %s\n", appKey));
             }
+        } else if (useServerMulti()){
+            mLogTxt.setText("同时使用多个服务器\n");
         } else {
             mLogTxt.setText("使用私有服务器\n");
         }
@@ -142,7 +192,7 @@ public class MainActivity extends PermissionsActivity {
     }
 
     private void setAppKey() {
-        if (!useServerChan) {
+        if (!useServerChan()) {
             Toast.makeText(this, "无需设置AppKey", Toast.LENGTH_SHORT).show();
             return;
         }

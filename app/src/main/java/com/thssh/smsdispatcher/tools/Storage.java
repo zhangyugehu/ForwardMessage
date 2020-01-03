@@ -2,6 +2,7 @@ package com.thssh.smsdispatcher.tools;
 
 import com.thssh.smsdispatcher.App;
 import com.thssh.smsdispatcher.contracts.StorageKey;
+import com.thssh.smsdispatcher.model.Mode;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -65,5 +66,11 @@ public class Storage {
             mIncludesCache = getIncludePkg().restore(StorageKey.KEY_INCLUDE_PKG, EMPTY_INCLUDES);
         }
         return mIncludesCache;
+    }
+    public void setMode(int mode) {
+        getDefault().save(StorageKey.KEY_MODE, mode);
+    }
+    public int getMode() {
+        return getDefault().restore(StorageKey.KEY_MODE, Mode.SERVER_CHAN);
     }
 }

@@ -1,5 +1,6 @@
 package com.thssh.smsdispatcher.settings;
 
+import com.thssh.smsdispatcher.model.Mode;
 import com.thssh.smsdispatcher.tools.Storage;
 
 import java.util.Collection;
@@ -53,7 +54,12 @@ public class CustomSettings implements Settings {
     }
 
     @Override
-    public boolean useServerChan() {
-        return false;
+    public int getMode() {
+        return Storage.getIns().getMode();
+    }
+
+    @Override
+    public void setMode(int mode) {
+        Storage.getIns().setMode(mode);
     }
 }

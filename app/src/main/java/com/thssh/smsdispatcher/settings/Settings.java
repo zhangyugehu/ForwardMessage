@@ -16,5 +16,6 @@ public interface Settings {
     Set<String> getExcludeSet();
 
     void setAppKey(String key);
-    boolean useServerChan();
+    int getMode();
+    void setMode(int mode);
 }

@@ -1,6 +1,7 @@
 package com.thssh.smsdispatcher.settings;
 
 import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.model.Mode;
 
 import java.util.Collection;
 import java.util.Set;
@@ -10,6 +11,7 @@ public class DefaultSettings implements Settings {
 
     private Set<String> mInclude;
     private Set<String> mExclude;
+    private int mode = Mode.SERVER_CHAN;
 
     public DefaultSettings() {
         this.mExclude = new TreeSet<>();
@@ -64,7 +66,12 @@ public class DefaultSettings implements Settings {
     }
 
     @Override
-    public boolean useServerChan() {
-        return true;
+    public int getMode() {
+        return mode;
+    }
+
+    @Override
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 }
