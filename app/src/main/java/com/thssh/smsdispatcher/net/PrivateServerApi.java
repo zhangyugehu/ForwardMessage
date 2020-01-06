@@ -3,6 +3,7 @@ package com.thssh.smsdispatcher.net;
 import android.util.Log;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -20,8 +21,8 @@ public class PrivateServerApi extends ApiWithClient {
     public void sendMessage(String title, String content) {
         getClient().newCall(new Request.Builder()
                 .post(new FormBody.Builder()
-                        .add("text", title)
-                        .add("desp", content)
+                        .add("text", String.format("[%s]%s", title, content))
+                        .add("desp", SimpleDateFormat.getDateTimeInstance().format(System.currentTimeMillis()))
                         .build())
                 .header("Content-Type", "application/json")
                 .url(URL)

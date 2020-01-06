@@ -8,7 +8,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.thssh.smsdispatcher.App;
-import com.thssh.smsdispatcher.model.service.NotificationWatcherService;
+import com.thssh.smsdispatcher.service.NotificationWatcherService;
 
 public class ServiceCheckWorker extends Worker {
 

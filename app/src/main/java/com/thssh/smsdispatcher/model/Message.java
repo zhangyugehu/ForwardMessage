@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher.model.service;
+package com.thssh.smsdispatcher.model;
 
 public class Message {
 

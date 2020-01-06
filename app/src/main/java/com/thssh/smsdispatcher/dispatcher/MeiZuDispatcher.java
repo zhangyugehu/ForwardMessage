@@ -46,11 +46,8 @@ public class MeiZuDispatcher implements Dispatcher {
                 && excludeSet != null && excludeSet.contains(packageName)) return;
         if (includeSet != null && !includeSet.contains(packageName)) return;
 
-        String contentText = buildContent(type, title, content);
-
         if (type == Type.POST) {
-            String preview = "预览" + " | " + content;
-            RemoteService.get().sendMessage(preview, contentText);
+            RemoteService.get().sendMessage(title, content);
             NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
         }
     }
@@ -59,14 +56,4 @@ public class MeiZuDispatcher implements Dispatcher {
         return AppManager.getInstance().getSettings();
     }
 
-    private String buildContent(Type type, String title, String content) {
-//        StringBuilder sb = new StringBuilder("### 标题")
-//                .append("\r\n")
-//                .append(title)
-//                .append("\r\n")
-//                .append("### 内容")
-//                .append("\r\n")
-//                .append(content);
-        return content;
-    }
 }

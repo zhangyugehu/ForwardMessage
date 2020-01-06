@@ -18,7 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.model.AppManager;
 import com.thssh.smsdispatcher.model.Mode;
-import com.thssh.smsdispatcher.model.service.NotificationWatcherService;
+import com.thssh.smsdispatcher.service.NotificationWatcherService;
 import com.thssh.smsdispatcher.tools.Storage;
 import com.thssh.smsdispatcher.tools.Util;
 

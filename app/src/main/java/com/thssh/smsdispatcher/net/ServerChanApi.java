@@ -41,7 +41,7 @@ public class ServerChanApi extends ApiWithClient {
         }
         FormBody body = new FormBody.Builder()
                 .add("text", title)
-                .add("desp", content)
+                .add("desp", buildContent(title, content))
                 .build();
         Request request = new Request.Builder()
                 .url(BASE_URL + appKey + API_SEND)
@@ -59,5 +59,17 @@ public class ServerChanApi extends ApiWithClient {
             }
         });
     }
+
+    private String buildContent(String title, String content) {
+        return new StringBuilder("### 标题")
+                .append("\r\n")
+                .append(title)
+                .append("\r\n")
+                .append("### 内容")
+                .append("\r\n")
+                .append(content)
+                .toString();
+    }
+
 }
 

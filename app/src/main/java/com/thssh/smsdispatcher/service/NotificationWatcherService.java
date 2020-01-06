@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher.model.service;
+package com.thssh.smsdispatcher.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
