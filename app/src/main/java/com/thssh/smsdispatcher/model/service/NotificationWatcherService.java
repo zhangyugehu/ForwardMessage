@@ -5,12 +5,9 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.work.PeriodicWorkRequest;
@@ -19,14 +16,13 @@ import androidx.work.WorkManager;
 import com.thssh.smsdispatcher.BuildConfig;
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.activity.MainActivity;
-import com.thssh.smsdispatcher.model.AppManager;
-import com.thssh.smsdispatcher.net.RemoteService;
-import com.thssh.smsdispatcher.settings.Settings;
+import com.thssh.smsdispatcher.dispatcher.Dispatcher;
+import com.thssh.smsdispatcher.dispatcher.MeiZuDispatcher;
 import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
 
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 
 public class NotificationWatcherService extends NotificationListenerService {
     private static final String TAG = "NotificationWatcher";
@@ -34,6 +30,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     private boolean isRunning;
 
     public static boolean sIsRunning;
+    private Dispatcher dispatcher;
 
     public NotificationWatcherService() {
         Log.d(TAG, "NotificationWatcherService: ");
@@ -41,10 +38,6 @@ public class NotificationWatcherService extends NotificationListenerService {
 
     public static void start(Context context) {
         context.startService(new Intent(context, NotificationWatcherService.class));
-    }
-
-    public Settings getSettings() {
-        return AppManager.getInstance().getSettings();
     }
 
     @Override
@@ -78,6 +71,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
+        dispatcher = new MeiZuDispatcher();
         Log.d(TAG, "onCreate: ");
     }
 
@@ -93,58 +87,18 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
-        dispatch(sbn, "onNotificationPosted");
+        dispatch(sbn, Dispatcher.Type.POST);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         super.onNotificationRemoved(sbn);
-        dispatch(sbn, "onNotificationRemoved");
+        dispatch(sbn, Dispatcher.Type.REMOVE);
     }
 
-    void dispatch(StatusBarNotification sbn, String tag) {
-
-        Bundle extras = sbn.getNotification().extras;
-        String title = null;
-        String content = null;
-        String subText = null;
-        if (extras.get(Notification.EXTRA_TITLE) != null) {
-            title = extras.get(Notification.EXTRA_TITLE).toString();
-        }
-        if (extras.get(Notification.EXTRA_TEXT) != null) {
-            content = extras.get(Notification.EXTRA_TEXT).toString();
-        }
-        if (extras.get(Notification.EXTRA_SUB_TEXT) != null) {
-            subText = extras.get(Notification.EXTRA_SUB_TEXT).toString();
-        }
-        ApplicationInfo appInfo = (ApplicationInfo) extras.get("android.rebuild.applicationInfo");
-        Set<String> includeSet = getSettings().getIncludeSet();
-        Set<String> excludeSet = getSettings().getExcludeSet();
-        if (appInfo != null) {
-            String packageName = appInfo.packageName;
-            if (includeSet != null && includeSet.size() < 1
-                    && excludeSet != null && excludeSet.contains(packageName)) return;
-            if (includeSet != null && !includeSet.contains(packageName)) return;
-        }
-
-        String contentText = buildContent(tag, title, content);
-        Log.d(TAG, contentText);
-
-        if (TextUtils.equals(tag, "onNotificationPosted")) {
-            String preview = "预览" + " | " + content;
-            RemoteService.get().sendMessage(preview, contentText);
-        }
-    }
-
-    private String buildContent(String tag, String title, String content) {
-        StringBuilder sb = new StringBuilder("### 标题")
-                .append("\r\n")
-                .append(title)
-                .append("\r\n")
-                .append("### 内容")
-                .append("\r\n")
-                .append(content);
-        return sb.toString();
+    void dispatch(StatusBarNotification sbn, Dispatcher.Type type) {
+        if (dispatcher == null) return;
+        dispatcher.dispatch(sbn, type);
     }
 
     private void toggleNotificationListenerService(Context context) {
