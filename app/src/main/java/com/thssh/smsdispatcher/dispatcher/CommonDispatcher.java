@@ -2,10 +2,12 @@ package com.thssh.smsdispatcher.dispatcher;
 
 import android.app.Notification;
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.thssh.smsdispatcher.App;
@@ -16,10 +18,11 @@ import com.thssh.smsdispatcher.settings.Settings;
 import java.util.Set;
 
 /**
- * 魅族手机
+ * 通用手机
  */
-public class MeiZuDispatcher implements Dispatcher {
+public class HonorDispatcher implements Dispatcher {
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void dispatch(StatusBarNotification sbn, Type type) {
 
