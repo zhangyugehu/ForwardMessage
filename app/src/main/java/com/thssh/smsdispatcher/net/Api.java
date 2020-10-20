@@ -2,5 +2,5 @@ package com.thssh.smsdispatcher.net;
 
 public interface Api {
 
-    void sendMessage(String title, String content);
+    void sendMessage(long timestamp, String title, String content);
 }

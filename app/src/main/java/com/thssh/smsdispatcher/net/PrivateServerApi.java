@@ -1,9 +1,11 @@
 package com.thssh.smsdispatcher.net;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -17,12 +19,15 @@ public class PrivateServerApi extends ApiWithClient {
 
     private static final String URL = "http://98.142.141.188:8000/notes";
 
+    @SuppressLint("SimpleDateFormat")
+    SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+
     @Override
-    public void sendMessage(String title, String content) {
+    public void sendMessage(long timestamp, String title, String content) {
         getClient().newCall(new Request.Builder()
                 .post(new FormBody.Builder()
-                        .add("text", String.format("[%s]%s", title, content))
-                        .add("desp", SimpleDateFormat.getDateTimeInstance().format(System.currentTimeMillis()))
+                        .add("text", content)
+                        .add("desp", String.format("[%s|%s]", FMT.format(timestamp), title))
                         .build())
                 .header("Content-Type", "application/json")
                 .url(URL)

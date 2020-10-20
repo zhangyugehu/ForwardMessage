@@ -20,11 +20,11 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 通用机型
+ * 荣耀手机
  */
-public class CommonDispatcher implements Dispatcher {
+public class HonorDispatcher extends CommonDispatcher {
 
-    private static final String TAG = "CommonDispatcher";
+    private static final String TAG = "HonorDispatcher";
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -59,16 +59,6 @@ public class CommonDispatcher implements Dispatcher {
             RemoteService.get().sendMessage(when, combinedTitle, content);
             NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
         }
-    }
-
-    private String beatify(String content) {
-        int start = content.indexOf("[");
-        int end = content.indexOf("]");
-        if (start < end && start != -1) {
-            return content.substring(end + 1);
-        }
-
-        return content;
     }
 
     private String print(Notification notification) {

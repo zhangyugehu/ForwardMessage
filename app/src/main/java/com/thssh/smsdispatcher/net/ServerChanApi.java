@@ -31,7 +31,7 @@ public class ServerChanApi extends ApiWithClient {
     }
 
     @Override
-    public void sendMessage(String title, String content) {
+    public void sendMessage(long timestamp, String title, String content) {
         String appKey = null;
         try {
             appKey = getAppKey();

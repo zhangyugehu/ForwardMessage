@@ -64,7 +64,7 @@ public class RemoteService implements Api {
     }
 
     @Override
-    public void sendMessage(String title, String content) {
-        getApi().sendMessage(title, content);
+    public void sendMessage(long timestamp, String title, String content) {
+        getApi().sendMessage(timestamp, title, content);
     }
 }

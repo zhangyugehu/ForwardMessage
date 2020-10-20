@@ -3,6 +3,8 @@ package com.thssh.smsdispatcher.activity;
 
 import android.Manifest;
 import android.content.ClipData;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.model.AppManager;
@@ -22,9 +25,17 @@ import com.thssh.smsdispatcher.service.NotificationWatcherService;
 import com.thssh.smsdispatcher.tools.Storage;
 import com.thssh.smsdispatcher.tools.Util;
 
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends PermissionsActivity {
+
+    private static final int REQUEST_CODE = 0x001;
+    private static final String[] PERMISSION_NEEDED = new String[] {
+            Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.CALL_PRIVILEGED
+    };
 
     abstract class InputCallback {
         abstract void onResult(String text);
@@ -43,15 +54,8 @@ public class MainActivity extends PermissionsActivity {
     }
 
     @Override
-    int requestCode() {
-        return 0x001;
-    }
-
-    @Override
-    String[] requestPermissions() {
-        return new String[] {
-                Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE
-        };
+    void onPermissions() {
+        requestPermissions(REQUEST_CODE, PERMISSION_NEEDED);
     }
 
     private static final String TAG = "MainActivity";
@@ -71,9 +75,7 @@ public class MainActivity extends PermissionsActivity {
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
             Util.gotoNotificationAccessSetting(this);
-            return;
         }
-        startListenService();
     }
 
     @Override
@@ -97,15 +99,6 @@ public class MainActivity extends PermissionsActivity {
         Log.i(TAG, "onPrepareOptionsMenu: ");
         return super.onPrepareOptionsMenu(menu);
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        menu.add(0, ID_APP_KEY, 0, "AppKey");
-//        menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
-//        menu.add(0, ID_CHANGE_MODE, 0, "切换模式(当前:" + getModeStr() + ")");
-//        Log.i(TAG, "onCreateOptionsMenu: ");
-//        return super.onCreateOptionsMenu(menu);
-//    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -159,7 +152,9 @@ public class MainActivity extends PermissionsActivity {
         }
 //        mLogTxt.setText("当前AppKey: \r\n" + appKey);
         Log.d(TAG, "startListenService: startService");
-        NotificationWatcherService.start(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            NotificationWatcherService.start(this);
+        }
         Log.d(TAG, "startListenService: service started");
     }
 
@@ -229,12 +224,21 @@ public class MainActivity extends PermissionsActivity {
     }
 
     @Override
-    public void onPermissionGranted(int requestCode, String permission) {
-
+    public void onPermissionGranted(int requestCode, Map<String, Integer> results) {
+        Log.i(TAG, "onPermissionGranted: " + results.toString());
+        if (results.get(PERMISSION_NEEDED[1]) == PackageManager.PERMISSION_GRANTED) {
+            startListenService();
+        }
     }
 
     @Override
-    public void onPermissionDenied(int requestCode, String permission) {
-//        Toast.makeText(this, "没有权限哦", Toast.LENGTH_LONG).show();
+    public void onPermissionDenied(int requestCode, Map<String, Integer> results) {
+        Log.i(TAG, "onPermissionDenied: " + results.toString());
     }
+
+    @Override
+    public void onPermissionRationale(int requestCode, Map<String, Integer> results) {
+        Log.i(TAG, "onPermissionRationale: " + results.toString());
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.thssh.smsdispatcher.activity;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +21,12 @@ public abstract class PermissionsActivity extends AppCompatActivity implements P
         if (viewId != 0) {
             setContentView(viewId);
         }
-        String[] permissions = requestPermissions();
-        for (String permission: permissions) {
-            getPermissionDelegate().require(permission);
-        }
+        onPermissions();
         onCreate(savedInstanceState, false);
+    }
+
+    protected void requestPermissions(int requestCode, String[] permissions) {
+        getPermissionDelegate().require(requestCode, permissions);
     }
 
     @Override
@@ -39,12 +41,12 @@ public abstract class PermissionsActivity extends AppCompatActivity implements P
     protected void onCreate(@Nullable Bundle savedInstanceState, boolean isFinished) {}
 
     abstract int contentViewId();
-    abstract int requestCode();
-    abstract String[] requestPermissions();
+    void onPermissions() {
+    }
 
     public PermissionsDelegate getPermissionDelegate() {
         if (permissionsDelegate == null) {
-            permissionsDelegate = new PermissionsDelegate(requestCode(), this, this);
+            permissionsDelegate = new PermissionsDelegate(this, this);
         }
         return permissionsDelegate;
     }

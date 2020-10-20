@@ -14,10 +14,10 @@ public class MultiServerApi implements Api {
     }
 
     @Override
-    public void sendMessage(String title, String content) {
+    public void sendMessage(long timestamp, String title, String content) {
         for (Api api: apis) {
             if (null == api) continue;
-            api.sendMessage(title, content);
+            api.sendMessage(timestamp, title, content);
         }
     }
 }

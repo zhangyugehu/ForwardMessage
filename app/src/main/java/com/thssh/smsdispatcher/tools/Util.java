@@ -1,22 +1,33 @@
 package com.thssh.smsdispatcher.tools;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.thssh.smsdispatcher.App;
 import com.thssh.smsdispatcher.model.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class Util {
@@ -38,6 +49,7 @@ public class Util {
         }
         return false;
     }
+
     public static boolean isNotificationListenerEnabled(Context context) {
         Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
         if (packageNames.contains(context.getPackageName())) {
@@ -72,9 +84,11 @@ public class Util {
     }
 
     private static List<AppInfo> sPkgCache;
+
     public static List<AppInfo> getPackages(Context context) {
         return getPackages(context, false);
     }
+
     public static List<AppInfo> getPackages(Context context, boolean force) {
         if (!force && sPkgCache != null) return sPkgCache;
         // 获取已经安装的所有应用, PackageInfo　系统类，包含应用信息
@@ -92,7 +106,7 @@ public class Util {
             appInfo.setVersionName(packageInfo.versionName);//获取应用版本名
             appInfo.setVersionCode(packageInfo.versionCode);//获取应用版本号
             appInfo.setAppIcon(packageInfo.applicationInfo.loadIcon(packageManager));//获取应用图标
-            if ((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM) == 0) { //非系统应用
+            if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) { //非系统应用
                 // AppInfo 自定义类，包含应用信息
                 appInfo.setSysApp(false);
                 infoList.add(appInfo);
@@ -104,5 +118,53 @@ public class Util {
         infoList.addAll(sysList);
         sPkgCache = infoList;
         return infoList;
+    }
+
+    public static String o2c(@Nullable Object o) {
+        return o2c(o, "");
+    }
+
+    public static String o2c(@Nullable Object o, String def) {
+        if (o == null) {
+            return def;
+        } else {
+            return o.toString();
+        }
+    }
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    @Nullable
+    public static String getPhoneNumber() {
+        try {
+            TelephonyManager tm = (TelephonyManager) App.getAppContext().getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm != null) {
+                return tm.getLine1Number();
+            }
+        } catch (Throwable ignored) {}
+        return "";
+    }
+
+    public static void getSimInfo() {
+
+        Uri uri = Uri.parse("content://telephony/siminfo");
+        Cursor cursor = null;
+        ContentResolver contentResolver = App.getAppContext().getContentResolver();
+        cursor = contentResolver.query(uri,
+                new String[]{"_id", "sim_id", "icc_id", "display_name"}, "0=0",
+                new String[]{}, null);
+        if (null != cursor) {
+            while (cursor.moveToNext()) {
+                String icc_id = cursor.getString(cursor.getColumnIndex("icc_id"));
+                String display_name = cursor.getString(cursor.getColumnIndex("display_name"));
+                int sim_id = cursor.getInt(cursor.getColumnIndex("sim_id"));
+                int _id = cursor.getInt(cursor.getColumnIndex("_id"));
+
+                Log.d("Q_M", "icc_id-->" + icc_id);
+                Log.d("Q_M", "sim_id-->" + sim_id);
+                Log.d("Q_M", "display_name-->" + display_name);
+                Log.d("Q_M", "subId或者说是_id->" + _id);
+                Log.d("Q_M", "---------------------------------");
+            }
+        }
     }
 }

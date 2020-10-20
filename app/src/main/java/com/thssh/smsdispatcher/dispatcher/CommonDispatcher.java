@@ -20,43 +20,16 @@ import java.util.Set;
 /**
  * 通用手机
  */
-public class HonorDispatcher implements Dispatcher {
+public abstract class CommonDispatcher implements Dispatcher {
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    @Override
-    public void dispatch(StatusBarNotification sbn, Type type) {
 
-        Bundle extras = sbn.getNotification().extras;
-        String title = "";
-        String content = sbn.getNotification().tickerText.toString();
-        String subText = "";
-        if (extras.get(Notification.EXTRA_TITLE) != null) {
-            title = extras.get(Notification.EXTRA_TITLE).toString();
+    protected String beatify(String content) {
+        int start = content.indexOf("[");
+        int end = content.indexOf("]");
+        if (start < end && start != -1) {
+            return content.substring(end + 1);
         }
-//        if (extras.get(Notification.EXTRA_TEXT) != null) {
-//            content = extras.get(Notification.EXTRA_TEXT).toString();
-//        }
-        if (extras.get(Notification.EXTRA_SUB_TEXT) != null) {
-            subText = extras.get(Notification.EXTRA_SUB_TEXT).toString();
-        }
-//        ApplicationInfo appInfo = (ApplicationInfo) extras.get("android.rebuild.applicationInfo");
-        String packageName = sbn.getPackageName();
-        Log.i("MeizuDispatcher", "dispatch: " + packageName + "[" + title + "]" + content + "==" + subText);
-        Set<String> includeSet = getSettings().getIncludeSet();
-        Set<String> excludeSet = getSettings().getExcludeSet();
-//        String packageName = appInfo.packageName;
-        if (includeSet != null && includeSet.size() < 1
-                && excludeSet != null && excludeSet.contains(packageName)) return;
-        if (includeSet != null && !includeSet.contains(packageName)) return;
 
-        if (type == Type.POST) {
-            RemoteService.get().sendMessage(title, content);
-            NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
-        }
+        return content;
     }
-
-    public Settings getSettings() {
-        return AppManager.getInstance().getSettings();
-    }
-
 }

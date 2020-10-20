@@ -1,31 +1,42 @@
 package com.thssh.smsdispatcher.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.thssh.smsdispatcher.BuildConfig;
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.activity.MainActivity;
+import com.thssh.smsdispatcher.dispatcher.CommonDispatcher;
 import com.thssh.smsdispatcher.dispatcher.Dispatcher;
-import com.thssh.smsdispatcher.dispatcher.MeiZuDispatcher;
+import com.thssh.smsdispatcher.dispatcher.HonorDispatcher;
+import com.thssh.smsdispatcher.dispatcher.SamsungDispatcher;
 import com.thssh.smsdispatcher.tools.ServiceCheckWorker;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationWatcherService extends NotificationListenerService {
     private static final String TAG = "NotificationWatcher";
+
+    private static final String CHANNEL_NAME = "短信转发";
+    private static final String CHANNEL_ID = "9527";
 
     private boolean isRunning;
 
@@ -46,13 +57,36 @@ public class NotificationWatcherService extends NotificationListenerService {
             sIsRunning = isRunning = true;
             Log.d(TAG, "onStartCommand: ");
             Intent nf = new Intent(this, MainActivity.class);
-            Notification notification = new Notification.Builder(getApplicationContext())
-                    .setContentIntent(PendingIntent.getActivity(this, 0, nf, 0))
-                    .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG?"(DEBUG)":""))
-                    .setContentText("监控通知栏并转发")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
+
+            Notification notification;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID,
+                        CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.enableLights(true);
+                notificationChannel.setLightColor(Color.RED);
+                notificationChannel.setShowBadge(true);
+                notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                NotificationManager manager= (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                assert manager != null;
+                manager.createNotificationChannel(notificationChannel);
+
+                notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID)
+                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
+                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG?"(DEBUG)":""))
+                        .setContentText("监控通知栏并转发")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setWhen(System.currentTimeMillis())
+                        .build();
+            } else {
+
+                notification = new Notification.Builder(getApplicationContext())
+                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
+                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG ? "(DEBUG)" : ""))
+                        .setContentText("监控通知栏并转发")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setWhen(System.currentTimeMillis())
+                        .build();
+            }
             notification.defaults = Notification.DEFAULT_SOUND;
 
             startForeground(1220, notification);
@@ -71,7 +105,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        dispatcher = new MeiZuDispatcher();
+        dispatcher = new SamsungDispatcher();
         Log.d(TAG, "onCreate: ");
     }
 
