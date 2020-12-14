@@ -17,7 +17,7 @@ public class PrivateServerApi extends ApiWithClient {
 
     private static final String TAG = "PrivateServerApi";
 
-    private static final String URL = "http://98.142.141.188:8000/notes";
+    private static final String URL = "http://api.thssh.tech:8000/notes";
 
     @SuppressLint("SimpleDateFormat")
     SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd hh:mm");
