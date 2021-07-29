@@ -29,35 +29,39 @@ public class HonorDispatcher extends CommonDispatcher {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void dispatch(StatusBarNotification sbn, Type type) {
+        try {
 
-        Bundle extras = sbn.getNotification().extras;
-        String packageName = sbn.getPackageName();
-        String title = "";
+            Bundle extras = sbn.getNotification().extras;
+            String packageName = sbn.getPackageName();
+            String title = "";
 //        String content = Util.o2c(sbn.getNotification().tickerText);
-        String content = "";
-        String subText = "";
-        long when = sbn.getNotification().when;
-        if (extras.get(Notification.EXTRA_TITLE) != null) {
-            title = Util.o2c(extras.getCharSequence(Notification.EXTRA_TITLE));
-        }
-        if (extras.get(Notification.EXTRA_SUB_TEXT) != null) {
-            subText = Util.o2c(extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
-        }
-        if (TextUtils.isEmpty(content) && extras.get(Notification.EXTRA_TEXT) != null) {
-            content = Util.o2c(extras.getCharSequence(Notification.EXTRA_TEXT));
-        }
-        content = beatify(content);
-        String combinedTitle = String.format(Locale.getDefault(), "%s|%s|%s", Util.getPhoneNumber(), packageName, title);
+            String content = "";
+            String subText = "";
+            long when = sbn.getNotification().when;
+            if (extras.get(Notification.EXTRA_TITLE) != null) {
+                title = Util.o2c(extras.getCharSequence(Notification.EXTRA_TITLE));
+            }
+            if (extras.get(Notification.EXTRA_SUB_TEXT) != null) {
+                subText = Util.o2c(extras.getCharSequence(Notification.EXTRA_SUB_TEXT));
+            }
+            if (TextUtils.isEmpty(content) && extras.get(Notification.EXTRA_TEXT) != null) {
+                content = Util.o2c(extras.getCharSequence(Notification.EXTRA_TEXT));
+            }
+            content = beatify(content);
+            String combinedTitle = String.format(Locale.getDefault(), "%s|%s|%s", Util.getPhoneNumber(), packageName, title);
 //        Log.i(TAG, "dispatch: " + packageName + "[" + combinedTitle + "]" + content + "|" + subText + "|" + print(sbn.getNotification()));
-        Set<String> includeSet = getSettings().getIncludeSet();
-        Set<String> excludeSet = getSettings().getExcludeSet();
-        if (includeSet != null && includeSet.size() < 1
-                && excludeSet != null && excludeSet.contains(packageName)) return;
-        if (includeSet != null && !includeSet.contains(packageName)) return;
+            Set<String> includeSet = getSettings().getIncludeSet();
+            Set<String> excludeSet = getSettings().getExcludeSet();
+            if (includeSet != null && includeSet.size() < 1
+                    && excludeSet != null && excludeSet.contains(packageName)) return;
+            if (includeSet != null && !includeSet.contains(packageName)) return;
 
-        if (type == Type.POST) {
-            RemoteService.get().sendMessage(when, combinedTitle, content);
-            NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
+            if (type == Type.POST) {
+                RemoteService.get().sendMessage(when, combinedTitle, content);
+                NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

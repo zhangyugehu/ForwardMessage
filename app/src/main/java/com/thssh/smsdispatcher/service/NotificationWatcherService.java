@@ -105,7 +105,7 @@ public class NotificationWatcherService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        dispatcher = new SamsungDispatcher();
+        dispatcher = new HonorDispatcher();
         Log.d(TAG, "onCreate: ");
     }
 
