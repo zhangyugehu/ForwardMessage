@@ -12,9 +12,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.thssh.smsdispatcher.App;
@@ -50,11 +54,13 @@ public class PackagesActivity extends AppCompatActivity {
     }
 
     private TextView mLoadingView;
+    private EditText mSearchInput;
     private RecyclerView mPackagesList;
     private PackagesAdapter mPackagesAdapter;
     private List<AppInfo> mAppInfoList;
     private boolean isDestroy;
     private UIHandler mHandler;
+    private List<AppInfo> mAppPackages;
 
     public List<String> getCheckedList() {
         return mPackagesAdapter.getAllChecked();
@@ -66,37 +72,89 @@ public class PackagesActivity extends AppCompatActivity {
         mHandler = new UIHandler();
         setContentView(R.layout.activity_packages);
         mLoadingView = findViewById(R.id.pkg_loading);
+        mSearchInput = findViewById(R.id.input_search);
         mAppInfoList = new ArrayList<>();
         mPackagesAdapter = new PackagesAdapter(mAppInfoList);
         mPackagesList = findViewById(R.id.list_packages);
         mPackagesList.setAdapter(mPackagesAdapter);
         mPackagesList.setLayoutManager(new LinearLayoutManager(this));
         mPackagesList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        initListener();
+        initDate();
+    }
 
+    private String mSearchText;
+    private String mLatestText;
+    List<AppInfo> mSearchResult = new ArrayList<>();
+
+    private final Runnable doSearch = () -> {
+        if (!TextUtils.isEmpty(mSearchText) && !TextUtils.equals(mSearchText, mLatestText)) {
+            mLatestText = mSearchText;
+            mSearchResult.clear();
+            for (AppInfo app : mAppPackages) {
+                if (doQuery(app, mSearchText)) {
+                    mSearchResult.add(app);
+                }
+            }
+            mAppInfoList.clear();
+            mAppInfoList.addAll(mSearchResult);
+            mPackagesAdapter.notifyDataSetChanged();
+        }
+    };
+
+    private boolean doQuery(AppInfo app, String target) {
+        return app != null && !TextUtils.isEmpty(target) &&
+                (app.getAppName() != null && app.getAppName().contains(target) ||
+                app.getPackageName() != null && app.getPackageName().contains(target))
+                ;
+    }
+
+    private void initListener() {
+        mSearchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mSearchText = s.toString();
+                mHandler.removeCallbacks(doSearch);
+                mHandler.postDelayed(doSearch, 300);
+            }
+        });
+    }
+
+    private void initDate() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<AppInfo> packages = Util.getPackages(App.getAppContext());
+            mAppPackages = Util.getPackages(App.getAppContext());
             Set<String> includes = Storage.getIns().getAllInclude();
             List<AppInfo> checkedList = new ArrayList<>();
-            for (AppInfo info : packages) {
+            for (AppInfo info : mAppPackages) {
                 if (includes.contains(info.getPackageName())) {
                     checkedList.add(info);
                 }
             }
             for (AppInfo info : checkedList) {
-                packages.remove(info);
-                packages.add(0, info);
+                mAppPackages.remove(info);
+                mAppPackages.add(0, info);
             }
             if (isDestroy) return;
             mHandler.post(() -> {
                 if (isDestroy) return;
-                if (packages == null || packages.size() < 1) {
+                if (mAppPackages == null || mAppPackages.size() < 1) {
                     mLoadingView.setText("空空如也~");
                     return;
                 } else if (mLoadingView.getVisibility() == View.VISIBLE){
                     mLoadingView.setVisibility(View.GONE);
                 }
                 mAppInfoList.clear();
-                mAppInfoList.addAll(packages);
+                mAppInfoList.addAll(mAppPackages);
                 mPackagesAdapter.notifyDataSetChanged();
 //                Toast.makeText(PackagesActivity.this, Thread.currentThread().getName() + "[size: " + mAppInfoList.size(), Toast.LENGTH_SHORT).show();
             });

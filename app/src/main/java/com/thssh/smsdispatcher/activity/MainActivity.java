@@ -45,6 +45,7 @@ public class MainActivity extends PermissionsActivity {
     private static final int ID_APP_KEY = 0;
     private static final int ID_PACKAGE_ACTIVITY = 1;
     private static final int ID_CHANGE_MODE = 2;
+    private static final int ID_CLOCK = 3;
 
     private TextView mLogTxt;
 
@@ -96,6 +97,7 @@ public class MainActivity extends PermissionsActivity {
         }
         menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
         menu.add(0, ID_CHANGE_MODE, 0, "切换模式(当前:" + getModeStr() + ")");
+        menu.add(0, ID_CLOCK, 0, "待机时钟");
         Log.i(TAG, "onPrepareOptionsMenu: ");
         return super.onPrepareOptionsMenu(menu);
     }
@@ -111,6 +113,9 @@ public class MainActivity extends PermissionsActivity {
                 break;
             case ID_CHANGE_MODE:
                 changeMode();
+                break;
+            case ID_CLOCK:
+                ClockActivity.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
