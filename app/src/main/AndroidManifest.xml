@@ -46,8 +46,8 @@
         </activity>
         <activity
             android:name=".activity.ClockActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-            android:screenOrientation="landscape" />
+            android:theme="@style/FullScreen"
+            android:screenOrientation="sensorLandscape" />
     </application>
 
 </manifest>
