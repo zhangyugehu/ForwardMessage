@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.thssh.smsdispatcher.App;
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
 import com.thssh.smsdispatcher.net.RemoteService;
 import com.thssh.smsdispatcher.settings.Settings;
 import com.thssh.smsdispatcher.tools.Util;
@@ -27,7 +27,10 @@ public class SamsungDispatcher extends CommonDispatcher {
         Bundle extras = sbn.getNotification().extras;
         long when = sbn.getNotification().when;
         String title = "";
-        String content = sbn.getNotification().tickerText.toString();
+        String content = "";
+        if (sbn.getNotification().tickerText != null) {
+            content = sbn.getNotification().tickerText.toString();
+        }
         String subText = "";
         if (extras.get(Notification.EXTRA_TITLE) != null) {
             title = extras.get(Notification.EXTRA_TITLE).toString();

@@ -1,4 +1,4 @@
-package com.thssh.smsdispatcher.model;
+package com.thssh.smsdispatcher.manager;
 
 import android.content.ClipboardManager;
 import android.content.Context;

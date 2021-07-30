@@ -5,13 +5,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.thssh.smsdispatcher.App;
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
 import com.thssh.smsdispatcher.net.RemoteService;
 import com.thssh.smsdispatcher.settings.Settings;
 import com.thssh.smsdispatcher.tools.Util;

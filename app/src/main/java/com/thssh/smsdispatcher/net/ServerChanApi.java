@@ -4,7 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.thssh.smsdispatcher.exception.NoAppKeyException;
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
 
 import java.io.IOException;
 

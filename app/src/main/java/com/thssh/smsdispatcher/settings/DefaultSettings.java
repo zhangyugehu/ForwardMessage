@@ -1,6 +1,6 @@
 package com.thssh.smsdispatcher.settings;
 
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
 import com.thssh.smsdispatcher.model.Mode;
 
 import java.util.Collection;

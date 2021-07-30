@@ -1,6 +1,6 @@
 package com.thssh.smsdispatcher.net;
 
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
 import com.thssh.smsdispatcher.model.Mode;
 
 public class RemoteService implements Api {

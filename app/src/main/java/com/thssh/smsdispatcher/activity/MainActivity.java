@@ -10,25 +10,29 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 
 import com.thssh.smsdispatcher.R;
-import com.thssh.smsdispatcher.model.AppManager;
+import com.thssh.smsdispatcher.manager.AppManager;
+import com.thssh.smsdispatcher.manager.ReportManager;
 import com.thssh.smsdispatcher.model.Mode;
+import com.thssh.smsdispatcher.model.Report;
 import com.thssh.smsdispatcher.service.NotificationWatcherService;
 import com.thssh.smsdispatcher.tools.Storage;
 import com.thssh.smsdispatcher.tools.Util;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MainActivity extends PermissionsActivity {
+public class MainActivity extends PermissionsActivity implements ReportManager.Listener {
 
     private static final int REQUEST_CODE = 0x001;
     private static final String[] PERMISSION_NEEDED = new String[] {
@@ -36,6 +40,23 @@ public class MainActivity extends PermissionsActivity {
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.CALL_PRIVILEGED
     };
+
+    @Override
+    public void onReport(List<Report> reports) {
+        runOnUiThread(() -> {
+            mScrollList.removeAllViews();
+            for (Report report : reports) {
+                mScrollList.addView(createItem(report));
+            }
+        });
+    }
+
+    private View createItem(Report report) {
+        TextView textView = new TextView(this);
+        textView.setText("[" + report.timestamp + "]" + report.title + "\r\n" + report.message);
+        textView.setMinHeight(90);
+        return textView;
+    }
 
     abstract class InputCallback {
         abstract void onResult(String text);
@@ -48,6 +69,7 @@ public class MainActivity extends PermissionsActivity {
     private static final int ID_CLOCK = 3;
 
     private TextView mLogTxt;
+    private LinearLayout mScrollList;
 
     @Override
     int contentViewId() {
@@ -71,8 +93,9 @@ public class MainActivity extends PermissionsActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState, boolean isFinished) {
         super.onCreate(savedInstanceState, isFinished);
-        Log.d(TAG, "onCreate: ");
         mLogTxt = findViewById(R.id.tv_log);
+        mScrollList = findViewById(R.id.box_list);
+        ReportManager.registerOnChangeListener(this);
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
             Util.gotoNotificationAccessSetting(this);
