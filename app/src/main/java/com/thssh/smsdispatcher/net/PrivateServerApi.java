@@ -1,16 +1,16 @@
 package com.thssh.smsdispatcher.net;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.thssh.smsdispatcher.manager.ReportManager;
+import com.thssh.smsdispatcher.model.Message;
+import com.thssh.smsdispatcher.model.ResponseCard;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,27 +25,77 @@ public class PrivateServerApi extends ApiWithClient {
     SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd hh:mm");
 
     @Override
-    public void sendMessage(long timestamp, String title, String content) {
+    public void sendMessage(Message message) {
         getClient().newCall(new Request.Builder()
                 .post(new FormBody.Builder()
-                        .add("title", title)
-                        .add("message", content)
+                        .add("title", message.getTitle())
+                        .add("message", message.getMessage())
+                        .add("packageName", message.getPackageName())
+                        .add("phone", message.getPhone())
+                        .add("timestamp", String.valueOf(message.getTimestamp()))
                         .build())
-                .header("Content-Type", "application/json")
                 .url(String.format(FORMAT_URL, "/notification"))
                 .build()
-        ).enqueue(new Callback() {
+        ).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: " + e.getMessage());
-                ReportManager.getInstance().report("[FAILURE]sendMessage", content);
+                reportFailure(message, e);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "onResponse: " + response.body().string());
-                ReportManager.getInstance().report("[SUCCESS]sendMessage", content);
+            public void onResponse(Call call, Response response) throws IOException  {
+                if (response.isSuccessful()) {
+                    ResponseCard responseCard = ResponseCard.fromJson(response.body().string());
+                    if (responseCard.isSuccess()) {
+                        reportSuccess(message);
+                    } else {
+                        reportFailure(message, new Exception(responseCard.message));
+                    }
+                } else {
+                    reportFailure(message, new Exception(response.message()));
+                }
             }
         });
+    }
+
+    @Override
+    public void login(String username, String passwd, Callback callback) {
+        getClient()
+            .newCall(new Request.Builder()
+                .post(new FormBody.Builder()
+                        .add("username", username)
+                        .add("passwd", passwd)
+                        .build()
+                )
+                .url(String.format(FORMAT_URL, "/login"))
+                .build()
+            )
+            .enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.onResult(null, e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    callback.onResult(ResponseCard.fromJson(response.body().string()), null);
+                }
+            });
+    }
+
+    private void reportFailure(Message message, Throwable e) {
+        ReportManager.getInstance().report("❌", "🗂" + message.getPackageName() + "👉" + message.getTitle() + " 📝" + thinString(message.getMessage()) + "‼️" + e.getMessage());
+    }
+
+    private void reportSuccess(Message message) {
+        ReportManager.getInstance().report("✅", "🗂" + message.getPackageName() + "👉" + message.getTitle() + " 📝" + thinString(message.getMessage()));
+    }
+
+    private String thinString(String fatString) {
+        if (TextUtils.isEmpty(fatString)) {
+            return fatString;
+        } else {
+            return fatString.substring(0, 15);
+        }
     }
 }

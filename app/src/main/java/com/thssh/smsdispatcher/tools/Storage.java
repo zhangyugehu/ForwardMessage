@@ -73,4 +73,11 @@ public class Storage {
     public int getMode() {
         return getDefault().restore(StorageKey.KEY_MODE, Mode.SERVER_CHAN);
     }
+
+    public String restoreToken() {
+        return getDefault().restore(StorageKey.KEY_TOKEN, "");
+    }
+    public void saveToken(String token) {
+        getDefault().save(StorageKey.KEY_TOKEN, token);
+    }
 }

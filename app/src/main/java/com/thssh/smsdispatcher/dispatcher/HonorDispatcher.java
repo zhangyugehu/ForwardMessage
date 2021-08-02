@@ -11,12 +11,15 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.thssh.smsdispatcher.App;
 import com.thssh.smsdispatcher.manager.AppManager;
+import com.thssh.smsdispatcher.model.Message;
 import com.thssh.smsdispatcher.net.RemoteService;
 import com.thssh.smsdispatcher.settings.Settings;
 import com.thssh.smsdispatcher.tools.Util;
 
 import java.util.Locale;
 import java.util.Set;
+
+import static com.thssh.smsdispatcher.tools.Util.getPhoneNumber;
 
 /**
  * 荣耀手机
@@ -47,7 +50,7 @@ public class HonorDispatcher extends CommonDispatcher {
                 content = Util.o2c(extras.getCharSequence(Notification.EXTRA_TEXT));
             }
             content = beatify(content);
-            String combinedTitle = String.format(Locale.getDefault(), "%s|%s|%s", Util.getPhoneNumber(), packageName, title);
+            String combinedTitle = String.format(Locale.getDefault(), "%s|%s|%s", getPhoneNumber(), packageName, title);
 //        Log.i(TAG, "dispatch: " + packageName + "[" + combinedTitle + "]" + content + "|" + subText + "|" + print(sbn.getNotification()));
             Set<String> includeSet = getSettings().getIncludeSet();
             Set<String> excludeSet = getSettings().getExcludeSet();
@@ -56,7 +59,7 @@ public class HonorDispatcher extends CommonDispatcher {
             if (includeSet != null && !includeSet.contains(packageName)) return;
 
             if (type == Type.POST) {
-                RemoteService.get().sendMessage(when, combinedTitle, content);
+                RemoteService.get().sendMessage(new Message(when, title, content, packageName));
                 NotificationManagerCompat.from(App.getAppContext()).cancel(sbn.getId());
             }
         } catch (Throwable t) {

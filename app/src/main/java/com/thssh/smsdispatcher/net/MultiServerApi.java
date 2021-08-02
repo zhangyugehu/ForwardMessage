@@ -1,5 +1,8 @@
 package com.thssh.smsdispatcher.net;
 
+import com.thssh.smsdispatcher.model.Message;
+import com.thssh.smsdispatcher.model.ResponseCard;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +17,18 @@ public class MultiServerApi implements Api {
     }
 
     @Override
-    public void sendMessage(long timestamp, String title, String content) {
+    public void sendMessage(Message message) {
         for (Api api: apis) {
             if (null == api) continue;
-            api.sendMessage(timestamp, title, content);
+            api.sendMessage(message);
+        }
+    }
+
+    @Override
+    public void login(String username, String passwd, Callback callback) {
+        for (Api api: apis) {
+            if (null == api) continue;
+            api.login(username, passwd, callback);
         }
     }
 }

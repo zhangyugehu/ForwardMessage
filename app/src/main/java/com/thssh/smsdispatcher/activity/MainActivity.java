@@ -6,13 +6,15 @@ import android.content.ClipData;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import com.thssh.smsdispatcher.service.NotificationWatcherService;
 import com.thssh.smsdispatcher.tools.Storage;
 import com.thssh.smsdispatcher.tools.Util;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,24 +44,27 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
             Manifest.permission.CALL_PRIVILEGED
     };
 
-    @Override
-    public void onReport(List<Report> reports) {
-        runOnUiThread(() -> {
-            mScrollList.removeAllViews();
-            for (Report report : reports) {
-                mScrollList.addView(createItem(report));
-            }
-        });
+    private void report(String message) {
+        ReportManager.getInstance().report(TAG, message);
     }
 
+    private final Handler mHandler  = new Handler(Looper.getMainLooper());
+    @Override
+    public void onReport(List<Report> reports) {
+        mReports = reports;
+        mHandler.removeCallbacks(mRefreshReports);
+        mHandler.postDelayed(mRefreshReports, 500);
+    }
+
+    private static final SimpleDateFormat F = new SimpleDateFormat("hh:mm:ss.sss");
     private View createItem(Report report) {
         TextView textView = new TextView(this);
-        textView.setText("[" + report.timestamp + "]" + report.title + "\r\n" + report.message);
+        textView.setText("[" + F.format(report.timestamp) + "]" + report.title + "\r\n" + report.message);
         textView.setMinHeight(90);
         return textView;
     }
 
-    abstract class InputCallback {
+    abstract static class InputCallback {
         abstract void onResult(String text);
         void onCancel() {}
     }
@@ -70,6 +76,18 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
 
     private TextView mLogTxt;
     private LinearLayout mScrollList;
+    private ScrollView mScroll;
+
+    private List<Report> mReports;
+
+    final Runnable mRefreshReports = () -> {
+        mScrollList.removeAllViews();
+        for (Report report : mReports) {
+            mScrollList.addView(createItem(report));
+        }
+        int offset = mScrollList.getMeasuredHeight() - mScroll.getHeight();
+        mScroll.scrollTo(0, offset);
+    };
 
     @Override
     int contentViewId() {
@@ -95,6 +113,7 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
         super.onCreate(savedInstanceState, isFinished);
         mLogTxt = findViewById(R.id.tv_log);
         mScrollList = findViewById(R.id.box_list);
+        mScroll = findViewById(R.id.scroll);
         ReportManager.registerOnChangeListener(this);
         if (!Util.isNotificationListenersEnabled(this)) {
             Toast.makeText(this, "没权限", Toast.LENGTH_LONG).show();
@@ -121,7 +140,6 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
         menu.add(0, ID_PACKAGE_ACTIVITY, 0, "通知列表");
         menu.add(0, ID_CHANGE_MODE, 0, "切换模式(当前:" + getModeStr() + ")");
         menu.add(0, ID_CLOCK, 0, "待机时钟");
-        Log.i(TAG, "onPrepareOptionsMenu: ");
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -179,11 +197,11 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
             }
         }
 //        mLogTxt.setText("当前AppKey: \r\n" + appKey);
-        Log.d(TAG, "startListenService: startService");
+        report("startListenService: startService");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             NotificationWatcherService.start(this);
         }
-        Log.d(TAG, "startListenService: service started");
+        report("startListenService: service started");
     }
 
     private void print(String appKey, Set<String> includes, Set<String> excludes) {
@@ -253,7 +271,7 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
 
     @Override
     public void onPermissionGranted(int requestCode, Map<String, Integer> results) {
-        Log.i(TAG, "onPermissionGranted: " + results.toString());
+        report("onPermissionGranted: " + results.toString());
         if (results.get(PERMISSION_NEEDED[1]) == PackageManager.PERMISSION_GRANTED) {
             startListenService();
         }
@@ -261,12 +279,12 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
 
     @Override
     public void onPermissionDenied(int requestCode, Map<String, Integer> results) {
-        Log.i(TAG, "onPermissionDenied: " + results.toString());
+        report("onPermissionDenied: " + results.toString());
     }
 
     @Override
     public void onPermissionRationale(int requestCode, Map<String, Integer> results) {
-        Log.i(TAG, "onPermissionRationale: " + results.toString());
+        report("onPermissionRationale: " + results.toString());
     }
 
 }

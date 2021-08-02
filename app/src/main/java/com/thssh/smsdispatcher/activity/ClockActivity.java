@@ -28,16 +28,16 @@ public class ClockActivity extends AppCompatActivity {
     private static final String INDEX = ":";
     private static final String TIME_INIT = "--";
     private static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("MM/dd/yyyy");
-    private static final long UPDATE_STEP = 50;
+    private static final long UPDATE_STEP = 20;
     private static final Map<Integer, String> WEEK_DIC = new HashMap<>();
     static {
+        WEEK_DIC.put(0, "周日");
         WEEK_DIC.put(1, "周一");
         WEEK_DIC.put(2, "周二");
         WEEK_DIC.put(3, "周三");
         WEEK_DIC.put(4, "周四");
         WEEK_DIC.put(5, "周五");
         WEEK_DIC.put(6, "周六");
-        WEEK_DIC.put(7, "周日");
     }
 
     public static void start(Activity activity) {

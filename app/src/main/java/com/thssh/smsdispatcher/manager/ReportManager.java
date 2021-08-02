@@ -18,7 +18,7 @@ public class ReportManager {
         return Singleton.INSTANCE;
     }
 
-    private static List<Listener> mChangeListeners = new ArrayList<>();
+    private static final List<Listener> mChangeListeners = new ArrayList<>();
 
     public static void registerOnChangeListener(Listener listener) {
         if (!mChangeListeners.contains(listener)) {
@@ -32,7 +32,7 @@ public class ReportManager {
         }
     }
 
-    private long mLimit = 10;
+    private long mLimit = 300;
 
     private List<Report> mReports;
 

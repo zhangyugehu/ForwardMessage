@@ -9,6 +9,8 @@ import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.thssh.smsdispatcher.manager.ReportManager;
+
 import java.util.Map;
 
 public class PermissionsDelegate {
@@ -95,7 +97,7 @@ public class PermissionsDelegate {
 
     private static final String TAG = "PermissionsDelegate";
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Log.i(TAG, "onRequestPermissionsResult: " + permissions + "|" + grantResults);
+        ReportManager.getInstance().report(TAG, "onRequestPermissionsResult: " + permissions + "|" + grantResults);
         if (grantResults != null && grantResults.length > 0) {
             Map<String, Integer> grantedMap = obtainGrantedMap();
             Map<String, Integer> deniedMap = obtainDeniedMap();

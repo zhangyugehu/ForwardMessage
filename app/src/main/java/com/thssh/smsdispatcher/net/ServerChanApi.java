@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.thssh.smsdispatcher.exception.NoAppKeyException;
 import com.thssh.smsdispatcher.manager.AppManager;
+import com.thssh.smsdispatcher.model.Message;
+import com.thssh.smsdispatcher.model.ResponseCard;
 
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ public class ServerChanApi extends ApiWithClient {
     }
 
     @Override
-    public void sendMessage(long timestamp, String title, String content) {
+    public void sendMessage(Message message) {
         String appKey = null;
         try {
             appKey = getAppKey();
@@ -40,14 +42,14 @@ public class ServerChanApi extends ApiWithClient {
             return;
         }
         FormBody body = new FormBody.Builder()
-                .add("text", title)
-                .add("desp", buildContent(title, content))
+                .add("text", message.getTitle())
+                .add("desp", buildContent(message))
                 .build();
         Request request = new Request.Builder()
                 .url(BASE_URL + appKey + API_SEND)
                 .post(body)
                 .build();
-        getClient().newCall(request).enqueue(new Callback() {
+        getClient().newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onFailure: " + e.getMessage());
@@ -60,14 +62,19 @@ public class ServerChanApi extends ApiWithClient {
         });
     }
 
-    private String buildContent(String title, String content) {
+    @Override
+    public void login(String username, String passwd, Callback callback) {
+        callback.onResult(ResponseCard.createSuccess(), null);
+    }
+
+    private String buildContent(Message message) {
         return new StringBuilder("### 标题")
                 .append("\r\n")
-                .append(title)
+                .append(message.getTitle())
                 .append("\r\n")
                 .append("### 内容")
                 .append("\r\n")
-                .append(content)
+                .append(message.getMessage())
                 .toString();
     }
 
