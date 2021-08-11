@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.tencent.bugly.beta.Beta;
 import com.thssh.smsdispatcher.R;
 import com.thssh.smsdispatcher.manager.AppManager;
 import com.thssh.smsdispatcher.manager.ReportManager;
@@ -125,6 +126,7 @@ public class MainActivity extends PermissionsActivity implements ReportManager.L
     protected void onResume() {
         super.onResume();
         initLogger();
+        Beta.checkUpgrade(false, false);
     }
 
     private void initLogger() {
