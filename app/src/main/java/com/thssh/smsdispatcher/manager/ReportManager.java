@@ -3,6 +3,7 @@ package com.thssh.smsdispatcher.manager;
 import com.thssh.smsdispatcher.model.Report;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReportManager {
@@ -34,10 +35,10 @@ public class ReportManager {
 
     private long mLimit = 300;
 
-    private List<Report> mReports;
+    private final List<Report> mReports;
 
     private ReportManager() {
-        mReports = new ArrayList<>();
+        mReports = Collections.synchronizedList(new ArrayList<>());
     }
 
     public void report(String title, String message) {
