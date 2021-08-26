@@ -7,8 +7,8 @@ android {
         applicationId "com.thssh.smsdispatcher"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 9
-        versionName "1.5.004"
+        versionCode 10
+        versionName "1.5.005"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {

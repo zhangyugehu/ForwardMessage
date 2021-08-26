@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -40,10 +42,14 @@ public class ClockActivity extends AppCompatActivity {
         WEEK_DIC.put(6, "周六");
     }
 
+    private static final int DAY_START = 6;
+    private static final int NIGHT_START = 18;
+
     public static void start(Activity activity) {
         activity.startActivity(new Intent(activity, ClockActivity.class));
     }
 
+    private ViewGroup mContainer;
     private TextView hours, minutes, seconds, hoursIndex, minutesIndex, microSeconds, date;
     private Handler mHandler;
 
@@ -68,6 +74,18 @@ public class ClockActivity extends AppCompatActivity {
     private int mLastSeconds = -1;
     private void work() {
         Date time = Calendar.getInstance().getTime();
+        int hours = time.getHours();
+        if (hours > DAY_START && hours < NIGHT_START) {
+            if (!isDay) {
+                isDay = true;
+                changeToDayTheme();
+            }
+        } else {
+            if (isDay) {
+                isDay = false;
+                changeToNightTheme();
+            }
+        }
         int seconds = time.getSeconds();
         if (seconds != mLastSeconds) {
             updateUI(time);
@@ -75,6 +93,22 @@ public class ClockActivity extends AppCompatActivity {
         }
         setVisible(updateMicroSeconds(time), hoursIndex, minutesIndex);
         mHandler.postDelayed(this::work, UPDATE_STEP);
+    }
+
+    private boolean isDay = false;
+    private void changeToNightTheme() {
+        changeTextColor(android.R.color.darker_gray);
+    }
+    private void changeToDayTheme() {
+        changeTextColor(android.R.color.white);
+    }
+    private void changeTextColor(int colorRes) {
+        for (int i = 0; i < mContainer.getChildCount(); i++) {
+            View child;
+            if ((child = mContainer.getChildAt(i)) instanceof TextView) {
+                ((TextView)child).setTextColor(ContextCompat.getColor(child.getContext(), colorRes));
+            }
+        }
     }
 
     private boolean updateMicroSeconds(Date time) {
@@ -120,6 +154,7 @@ public class ClockActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        mContainer = findViewById(R.id.container);
         (hours = findViewById(R.id.txt_hour)).setText(TIME_INIT);
         (hoursIndex = findViewById(R.id.txt_hour_split)).setText(INDEX);
         (minutes = findViewById(R.id.txt_minutes)).setText(TIME_INIT);
