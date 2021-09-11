@@ -14,6 +14,7 @@ public class ResponseCard {
     private static final String KEY_MESSAGE = "message";
 
     public static final int CODE_SUCCESS = 0;
+    public static final int CODE_ERROR_TOKEN = 1006;
     public int code;
     public String message;
     public final Map<String, Object> result = new HashMap<>();
@@ -26,6 +27,10 @@ public class ResponseCard {
 
     public boolean isSuccess() {
         return code == CODE_SUCCESS;
+    }
+
+    public boolean isTokenError() {
+        return code == CODE_ERROR_TOKEN;
     }
 
     public static ResponseCard fromJson(String json) {

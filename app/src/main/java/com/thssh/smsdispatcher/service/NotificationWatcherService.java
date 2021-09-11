@@ -76,18 +76,18 @@ public class NotificationWatcherService extends NotificationListenerService {
                 manager.createNotificationChannel(notificationChannel);
 
                 notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID)
-//                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
-                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG?"(DEBUG)":""))
-                        .setContentText("监控通知栏并转发")
+                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
+                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "转发", BuildConfig.DEBUG?"(DEBUG)":""))
+                        .setContentText("通知转发中...")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setWhen(System.currentTimeMillis())
                         .build();
             } else {
 
                 notification = new Notification.Builder(getApplicationContext())
-//                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
-                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "通知转发", BuildConfig.DEBUG ? "(DEBUG)" : ""))
-                        .setContentText("监控通知栏并转发")
+                        .setContentIntent(PendingIntent.getActivity(this, 0, nf, PendingIntent.FLAG_CANCEL_CURRENT))
+                        .setContentTitle(String.format(Locale.CHINA, "%s%s", "转发", BuildConfig.DEBUG ? "(DEBUG)" : ""))
+                        .setContentText("通知转发中...")
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setWhen(System.currentTimeMillis())
                         .build();

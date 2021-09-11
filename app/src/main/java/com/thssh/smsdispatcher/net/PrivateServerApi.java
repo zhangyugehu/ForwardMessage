@@ -1,11 +1,15 @@
 package com.thssh.smsdispatcher.net;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.text.TextUtils;
 
+import com.thssh.smsdispatcher.activity.AppStartActivity;
 import com.thssh.smsdispatcher.manager.ReportManager;
+import com.thssh.smsdispatcher.manager.TokenManager;
 import com.thssh.smsdispatcher.model.Message;
 import com.thssh.smsdispatcher.model.ResponseCard;
+import com.thssh.smsdispatcher.tools.Route;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -46,7 +50,10 @@ public class PrivateServerApi extends ApiWithClient {
             public void onResponse(Call call, Response response) throws IOException  {
                 if (response.isSuccessful()) {
                     ResponseCard responseCard = ResponseCard.fromJson(response.body().string());
-                    if (responseCard.isSuccess()) {
+                    if (responseCard.isTokenError()) {
+                        TokenManager.getInstance().setToken(null);
+                        Route.getInstance().push(Route.Name.START, null, Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    } else if (responseCard.isSuccess()) {
                         reportSuccess(message);
                     } else {
                         reportFailure(message, new Exception(responseCard.message));
@@ -93,9 +100,13 @@ public class PrivateServerApi extends ApiWithClient {
 
     private String thinString(String fatString) {
         if (TextUtils.isEmpty(fatString)) {
-            return fatString;
+            return "No Content!!!";
         } else {
-            return fatString.substring(0, 15);
+            int exceptSize = 15;
+            if (fatString.length() < exceptSize) {
+                return fatString;
+            }
+            return fatString.substring(0, exceptSize);
         }
     }
 }

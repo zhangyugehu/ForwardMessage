@@ -26,6 +26,7 @@ public class TokenManager {
     }
 
     public void setToken(String token) {
+        Storage.getIns().saveToken(token);
         this.token = token;
     }
 }
